@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="749fe546-176a-4682-8512-1ad1036672a5" >
+		<http:request-connection host="localhost" port="8082" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="3c17670b-0c4f-4470-8aff-f0b1ef6c6a30" >
+		<http:request-connection host="localhost" port="8082" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration2" doc:name="HTTP Request configuration" doc:id="f68e2a00-c750-4f21-acbc-0025bf920596" >
+		<http:request-connection host="localhost" port="8082" />
+	</http:request-config>
+	<error-handler name="test101Error_Handler" doc:id="c66bc56e-cab2-4406-9d27-504f9e6ca0f1" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c8055d34-cfa6-432b-aa8d-4e41c15f5bc8" >
+			<logger level="INFO" doc:name="Logger" doc:id="aeb0e36b-526a-4c5a-8f5b-ca6c161216a0" message="Your request Failed. Contact support."/>
+		</on-error-propagate>
+	</error-handler>
+	<flow name="test101Flow" doc:id="3815fdc0-ca1e-4305-aa6b-ffa986164d89" >
+		<http:request method="GET" doc:name="A" doc:id="ea1da0ca-dc37-4f68-adcc-7b354a82c4c5" config-ref="HTTP_Request_configuration" path="/first"/>
+		<logger level="INFO" doc:name="Logger" doc:id="67f99259-6b7a-408c-9cd5-338e6d107082" message="Your msg for 1st has been received"/>
+		<tracking:custom-event doc:name="Request Business Event" doc:id="1d3c105f-40fe-4139-ac57-49b6e6d0b975" event-name="Request Business Event">
+			<tracking:meta-data key="RequestID" value="#[message.ID]" />
+		</tracking:custom-event>
+		<http:request method="GET" doc:name="B" doc:id="be22139b-5564-4979-aefa-7cec10fb6779" config-ref="HTTP_Request_configuration1" path="/second"/>
+		<tracking:custom-event doc:name="After B Business Event" doc:id="7568e798-3b8d-4de9-b3cc-ab4675a456be" event-name="After-B-Call">
+			<tracking:meta-data key="requestID" value="#[message.ID]" />
+		</tracking:custom-event>
+		<logger level="INFO" doc:name="Logger" doc:id="81b14598-b0a5-468d-bbc7-3c61d0944b6c" message="completed flow1"/>
+		<error-handler ref="test101Error_Handler" />
+	</flow>
+	<flow name="test101Flow1" doc:id="fdc7d131-542a-4c5f-8365-d81d31e44f6e" >
+		<http:request method="GET" doc:name="C" doc:id="5573bf23-6df6-4423-b8e6-4712f3d1d47a" config-ref="HTTP_Request_configuration2" path="/third"/>
+		<logger level="INFO" doc:name="Logger" doc:id="033c19f4-b9d4-41be-b98f-927f019a0819" message="msg received in flow 2 successfully."/>
+		<error-handler ref="test101Error_Handler" />
+	</flow>
+</mule>
